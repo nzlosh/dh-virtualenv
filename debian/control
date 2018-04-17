@@ -3,14 +3,14 @@ Section: python
 Priority: extra
 Maintainer: Jyrki Pulliainen <jyrki@spotify.com>
 Build-Depends: debhelper (>= 9), python(>= 2.6.6-3~),
- python-setuptools, python-sphinx, python-mock
+ python-setuptools, python-mock
 Standards-Version: 3.9.8
 Homepage: http://www.github.com/spotify/dh-virtualenv
 X-Python-Version: >= 2.6
 
 Package: dh-virtualenv
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends},  ${sphinxdoc:Depends},
+Depends: ${python:Depends}, ${misc:Depends}
  virtualenv | python-virtualenv (>= 1.7)
 Description: wrap and build python packages using virtualenv
  This package provides a dh sequencer that helps you to deploy your
