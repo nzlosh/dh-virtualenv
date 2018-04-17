@@ -209,29 +209,28 @@ class Deployment(object):
 
     def find_script_files(self):
         """Find list of files containing python shebangs in the bin directory"""
-        command = ['grep', '-l', '-r',
-                   '-e', r'^#!\({0}\|.*bin/\(env \)\?{0}\)'.format(_PYTHON_INTERPRETERS_REGEX),
-                   '-e', r"^'''exec.*bin/{0}".format(_PYTHON_INTERPRETERS_REGEX),
+        command = ['grep', '-l', '-r', '-e',
+                   r'^#!\(python\|.*bin/\(env \)\?{0}\)'.format(_PYTHON_INTERPRETERS_REGEX),
                    self.bin_dir]
         grep_proc = subprocess.Popen(command, stdout=subprocess.PIPE)
         files, stderr = grep_proc.communicate()
         return set(f for f in files.decode('utf-8').strip().split('\n') if f)
 
     def fix_shebangs(self):
-        """Translate '/usr/bin/python', '/usr/bin/env python', and 'python' shebang
-        lines to point to our virtualenv python.
+        """
+        Translate shebang lines: '.*bin/python', '.*/bin/env python' and 'python'
+        to point to our virtualenv python.
         """
         pythonpath = os.path.join(self.virtualenv_install_dir, 'bin/python')
         for f in self.find_script_files():
-            regex = (r's-^#!\({names}\|.*bin/\(env \)\?{names}\"\?\)-#!{pythonpath}-;'
-                     r"s-^'''exec'.*bin/{names}-'''exec' {pythonpath}-"
-            ).format(names=_PYTHON_INTERPRETERS_REGEX, pythonpath=re.escape(pythonpath))
+            regex = r's-^#!\(python\|.*bin/\(env \)\?{names}\"\?\)-#!{pythonpath}-'\
+                .format(names=_PYTHON_INTERPRETERS_REGEX, pythonpath=re.escape(pythonpath))
             p = subprocess.Popen(
                 ['sed', '-i', regex, f],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            subprocess.check_call(['sed', '-i', regex, f])
+
 
     def fix_activate_path(self):
         """Replace the `VIRTUAL_ENV` path in bin/activate to reflect the
